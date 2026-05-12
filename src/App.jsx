@@ -2,21 +2,64 @@ import { useState } from 'react'
 import './index.css'
 
 function App() {
-  const [nodes, setNodes] = useState([]);
-  const [czas, setCzas] = useState(0);
-  const [stos, setStos] = useState([]);
+return (
+<div className='contener-glowny'>
+<header>
+  <h1>Algorytm DFS</h1>
+</header>
 
-  noweNodes.forEach(node => {
-      const mozliwiSasiedzi = noweNodes.filter(n => n.id !== node.id);
-      const wylosowani = mozliwiSasiedzi
-        .sort(() => 0.5 - Math.random())
-        .slice(0, Math.floor(Math.random() * 2) + 1);
-      node.sasiedzi = wylosowani.map(n => n.id);
-    });
+<main className='content'>
 
-    setNodes(noweNodes);
-    setCzas(0);
-    setStos([1]); // Zaczynamy od wierzchołka nr 1
-  };
+  <section className='contener-lewy'>
+    <h2>Wylosowany GRAF</h2>
+
+      <div className='status-bar'>
+         <div className='obecny-czas'>
+            <p>Czas odwiedzenia: </p>
+          </div>
+
+         <div className='obecny-wierzcholek'>
+           <p>Obecnie sprawdzany wierzchołek: </p>
+        </div>
+      </div>
+ 
+      <div className="graph-container">
+
+      </div>
+
+      <div className='aktualny-stos'>
+        <h2>Aktualny stos:</h2>
+      </div>
+  </section>
+
+  <section className='contener-prawy'>
+      <div className='przyciski'>
+        <button>Reset</button>
+        <button>Losuj graf</button> 
+      </div>
+
+      <div className='tabela'>
+        <h2>Tabela czasów:</h2>
+      </div>
+
+      <div className='nastepny-krok'>
+        <button>Następny krok:</button>
+      </div>
 
 
+
+  </section>
+
+</main>
+
+
+
+</div>
+);
+
+
+
+};
+
+
+export default App;
