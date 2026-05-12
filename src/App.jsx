@@ -11,11 +11,15 @@ return (
 <main className='content'>
 
   <section className='contener-lewy'>
-    <h2>Wylosowany GRAF</h2>
+      <div className='wylosowany-graf'>
+        <h2>Wylosowany GRAF</h2>
+      </div>
 
+
+      <div className='graf'>
       <div className='status-bar'>
          <div className='obecny-czas'>
-            <p>Czas odwiedzenia: </p>
+            <p>Aktualny czas: </p>
           </div>
 
          <div className='obecny-wierzcholek'>
@@ -30,6 +34,8 @@ return (
       <div className='aktualny-stos'>
         <h2>Aktualny stos:</h2>
       </div>
+
+       </div>
   </section>
 
   <section className='contener-prawy'>
@@ -43,7 +49,7 @@ return (
       </div>
 
       <div className='nastepny-krok'>
-        <button>Następny krok:</button>
+        <button>Następny krok</button>
       </div>
 
 
