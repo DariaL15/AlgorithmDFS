@@ -127,13 +127,76 @@ p {
 .graph-container {
   width: 100%;
   flex: 1;
+  position: relative;
+  overflow: hidden; /*jeśli graf wylosuje się zbyt blisko krawędzi, nie "wyjdzie" poza Twój kontener.*/
   justify-content: center;
   display: flex;
   align-items: center;
 }
 
+.node {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  z-index: 2;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 50%;
+  border: 3px solid var(--bg);
+  transition: all 0.3s ease;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.node.aktualny {
+ background-color: var(--border);
+ color: var(--bg);
+}
+
+.node.nieodwiedzony {
+  background-color: var(--color-bialy);
+   color: var(--bg);
+}
+
+.node.badany {
+ background-color: var(--color-szary);
+ color: var(--bg);
+}
+
+.node.przetworzony {
+  background-color: var(--color-ciemny-szary);
+  color: var(--text);
+}
+
+
+.edge
+{
+  position: absolute;
+  z-index: 1; 
+  height: 2px;
+  background-color: var(--color-bialy);
+  /* Kluczowe: Punkt obrotu */
+  transform-origin: left center;
+  transition: background-color 0.3s ease;
+  pointer-events: none;
+}
+
+.edge.aktualna {
+  background-color: var(--text-h);
+  height: 3px;
+}
+
 .aktualny-stos {
 text-align: left;
+}
+
+
+.stos {
+  display: flex;
+  gap: 10px;
 }
 
 .contener-prawy {
@@ -160,6 +223,7 @@ text-align: left;
   background-color: var(--text);
   color: var(--bg);
   border: var(--bg);
+  border-radius: 4px;
   cursor: pointer;
 
 }
@@ -172,6 +236,27 @@ text-align: left;
   justify-content: center;
   align-items: center;
 }
+
+
+.tabelka {
+  width: 100%;
+  border-collapse: collapse; /*Usuwa puste przestrzenie między ramkami komórek, tworząc jedną czystą siatkę.*/
+}
+
+.tabelka th, .tabelka td {
+  padding: 5px;
+  border: 3px solid var(--accent);
+}
+
+.tabelka th {
+  font-size: 14px;
+  background-color: var(--accent);
+}
+
+.tabelka td {
+  font-size: 13px;
+}
+
 
 .nastepny-krok {
   width: 100%;
