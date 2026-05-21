@@ -13,7 +13,13 @@ const [krawedzie, setKrawedzie] = useState([
 ]);
 const [czas, setCzas] = useState(0);
 
-function generujGraf() { 
+const [stos, setStos] = useState([]); // Nasz stos DFS (będziemy tu trzymać ID wierzchołków)
+const [czyUruchomiony, setCzyUruchomiony] = useState(false);
+const [czySkierowany, setCzySkierowany] = useState(false);
+
+function generujGraf(typ) { 
+
+  setCzySkierowany(typ);
     // Math.floor(Math.random() * (max - min + 1)) + min;
     const liczbaWierzcholkow = Math.floor(Math.random() * 3) + 7;
     const noweWierzcholki = [];
@@ -140,10 +146,116 @@ function generujGraf() {
 }
 
 
+function nastepnyKrok() {
+  if (wierzcholki.length === 0) return;
+
+  if (!czyUruchomiony) {
+    
+    const startowyId = wierzcholki[0].id; 
+    const nowyCzas = 1;
+
+    const zaktualizowaneWierzcholki = wierzcholki.map((w) => {
+      if (w.id === startowyId) {
+        return { ...w, status: 'badany', d: 1 }; // d to czas odwiedzenia
+      }
+      return w;
+    });
+
+    // Zwiększamy czas o 1
+    setCzas(1);
+    // Wrzucamy wierzchołek startowy na nasz stos
+    setStos([startowyId]);
+    // Zapisujemy zaktualizowane wierzchołki do pamięci
+    setWierzcholki(zaktualizowaneWierzcholki);
+    setCzyUruchomiony(true);
+
+    return; 
+  }
+
+  // 1. Jeśli stos opustoszeje, oznacza to, że algorytm sprawdził już wszystko
+  if (stos.length === 0) {
+    alert("Algorytm DFS zakończył działanie");
+    setCzyUruchomiony(false);
+    return;
+  }
+
+  // 2. Podglądamy, jaki wierzchołek leży na samej górze stosu (nasz aktualny wierzchołek 'v')
+  const aktualnyId = stos[stos.length - 1];
+
+  // 3. Tworzymy pudełko na ID sąsiada, którego za chwilę spróbujemy znaleźć
+  let bialySasiadId = null;
+
+  // 4. Przeglądamy wszystkie krawędzie w grafie, żeby znaleźć połączenia z 'aktualnyId'
+  for (let i = 0; i < krawedzie.length; i++) {
+    const kr = krawedzie[i];
+    let potencjalnySasiadId = null;
+
+    // Ponieważ krawędzie nie mają strzałek (są dwukierunkowe), sprawdzamy oba końce linii
+    if (kr.od === aktualnyId) {
+      potencjalnySasiadId = kr.do;
+    }
+    else if (!czySkierowany && kr.do === aktualnyId) {
+      potencjalnySasiadId = kr.od;
+    }
+
+    // Jeśli znaleźliśmy wierzchołek połączony linią, sprawdzamy czy jest BIAŁY (nieodwiedzony)
+    if (potencjalnySasiadId !== null) {
+      const sasiad = wierzcholki.find(w => w.id === potencjalnySasiadId);
+      
+      // Odpowiednik z Twojego pseudokodu: "if kolor[u] = BIAŁY"
+      if (sasiad && sasiad.status === 'nieodwiedzony') {
+        bialySasiadId = potencjalnySasiadId;
+        break; // Znaleźliśmy pierwszego wolnego sąsiada! Przerywamy pętlę for, żeby iść do niego
+      }
+    }
+  }
+
+  // 5. Każda akcja w algorytmie przesuwa zegar do przodu (czas := czas + 1)
+  const kolejnyCzas = czas + 1;
+  setCzas(kolejnyCzas);
+
+  // 6. SCENARIUSZ: Jeśli znaleźliśmy białego sąsiada, odwiedzamy go (Wchodzimy w głąb)
+  if (bialySasiadId !== null) {
+    const zaktualizowane = wierzcholki.map((w) => {
+      // Odpowiednik z Twojego pseudokodu: kolor[u] := SZARY oraz odwiedzenie[u] := czas
+      if (w.id === bialySasiadId) {
+        return { ...w, status: 'badany', d: kolejnyCzas };
+      }
+      return w;
+    });
+
+    // Wrzucamy go na górę stosu – w następnym kroku on będzie szukał swoich sąsiadów
+    setStos([...stos, bialySasiadId]);
+    setWierzcholki(zaktualizowane);
+  } else {
+    const zaktualizowane = wierzcholki.map((w) => {
+      // Pseudokod: kolor[v] := CZARNY oraz przetworzenie[v] := czas
+      if (w.id === aktualnyId) {
+        return { ...w, status: 'przetworzony', f: kolejnyCzas };
+      }
+      return w;
+    });
+
+    // Zdejmujemy wierzchołek z samej góry stosu (obcinamy ostatni element tablicy)
+    setStos(stos.slice(0, -1));
+    setWierzcholki(zaktualizowane);
+  }
+  
+}
+
 return (
 <div className='contener-glowny'>
 <header>
+  <div className='tytul'>
   <h1>Algorytm DFS</h1>
+  </div>
+  <div className='wylosuj'>
+      <h2>Losuj:</h2>
+      <div className='przyciski'>
+        <button onClick={() => generujGraf(false)} disabled={czyUruchomiony}>Nieskierowany</button> 
+        <button onClick={() => generujGraf(true)} disabled={czyUruchomiony}>Skierowany</button> 
+      </div>
+    </div>
 </header>
 
 <main className='content'>
@@ -157,12 +269,12 @@ return (
       <div className='graf'>
       <div className='status-bar'>
          <div className='obecny-czas'>
-            <p>Aktualny czas: </p>
+            <p>Aktualny czas:  {czas}</p>
           </div>
-
+{/*
          <div className='obecny-wierzcholek'>
            <p>Obecnie sprawdzany wierzchołek: </p>
-        </div>
+        </div> */}
       </div>
  
       <div className="graph-container">
@@ -174,23 +286,28 @@ return (
                {node.label} {/*label to literka*/}
              </div>
             ))}
-            <svg style={{ position: 'absolute', width: '100%', height: '100%', left: 0, top: 0 }}>
-            {/* KROK 2: Przeglądamy wszystkie krawędzie z pamięci komputera */}
-    {krawedzie.map((krawedz, index) => {
-      
-      /* DETEKTYW KROK A: Szukamy kółka, od którego linia ma ODchodzić */
+            
+            
+            
+      <svg style={{ position: 'absolute', width: '100%', height: '100%', left: 0, top: 0 }}>
+          <defs>
+            <marker id="strzalka" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="white" />
+            </marker>
+          </defs>
+
+
+      {krawedzie.map((krawedz, index) => {
       const wierzcholekStart = wierzcholki.find(w => w.id === krawedz.od);
-      
-      /* DETEKTYW KROK B: Szukamy kółka, DO którego linia ma DOchodzić */
       const wierzcholekKoniec = wierzcholki.find(w => w.id === krawedz.do);
 
       /* Zabezpieczenie: jeśli graf się jeszcze nie wylosował, nie rysuj nic */
       if (!wierzcholekStart || !wierzcholekKoniec) return null;
+      
 
-
-      /* KROK 3: Skoro mamy już oba kółka, wyciągamy z nich procenty x i y i rysujemy! */
       return (
         <line className='edge'
+          markerEnd={czySkierowany ? "url(#strzalka)" : undefined}
           key={index}
           x1={`${wierzcholekStart.x}%`}  /* Pobieramy wylosowany X pierwszego kółka */
           y1={`${wierzcholekStart.y}%`}  /* Pobieramy wylosowany Y pierwszego kółka */
@@ -199,23 +316,31 @@ return (
         />
       );
     })}
-            </svg>
+      
+      
+      </svg>
       </div>
 
       <div className='aktualny-stos'>
         <h2>Aktualny stos:</h2>
          <div className='stos'>
-         </div>
+    {stos.map((idWierzcholka) => {
+      const wierzcholek = wierzcholki.find(w => w.id === idWierzcholka);
+      return (
+        <div key={idWierzcholka} className="node badany" style={{ position: 'relative', transform: 'none', left: 0, top: 0 }}>
+          {wierzcholek?.label}
+        </div>
+      );
+    })}
+  </div>
       </div>
 
        </div>
   </section>
 
+
+
   <section className='contener-prawy'>
-      <div className='przyciski'>
-        <button>Reset</button>
-        <button onClick={generujGraf}>Losuj graf</button> 
-      </div>
 
       <div className='tabela'>
         <h2>Tabela czasów:</h2>
@@ -242,7 +367,7 @@ return (
       </div>
 
       <div className='nastepny-krok'>
-        <button>Następny krok</button>
+        <button onClick={nastepnyKrok}>Następny krok</button>
       </div>
 
 
@@ -257,8 +382,6 @@ return (
 );
 
 
-
 };
-
 
 export default App;
