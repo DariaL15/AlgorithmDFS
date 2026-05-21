@@ -138,8 +138,8 @@ p {
 
 .node {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   box-sizing: border-box;
   z-index: 2;
   font-size: 20px;
@@ -175,22 +175,19 @@ p {
   color: var(--text);
 }
 
-
-.edge
-{
-  position: absolute;
-  z-index: 1; 
-  height: 2px;
-  background-color: var(--color-bialy);
-  /* Kluczowe: Punkt obrotu */
-  transform-origin: left center;
-  transition: background-color 0.3s ease;
+.edge {
+  stroke: var(--color-bialy); /* Odpowiednik background-color dla SVG */
+  stroke-width: 2px;          /* Odpowiednik height dla SVG */
+  opacity: 0.8;               
+  transition: all 0.3s ease;
   pointer-events: none;
 }
 
+
 .edge.aktualna {
-  background-color: var(--text-h);
-  height: 3px;
+  stroke: var(--text-h);      
+  stroke-width: 3px;          
+  opacity: 1;                 
 }
 
 .aktualny-stos {
