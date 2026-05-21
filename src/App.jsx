@@ -15,34 +15,72 @@ const [czas, setCzas] = useState(0);
 
 function generujGraf() { 
     // Math.floor(Math.random() * (max - min + 1)) + min;
-    const liczbaWierzcholkow = Math.floor(Math.random() * 6) + 6;
+    const liczbaWierzcholkow = Math.floor(Math.random() * 4) + 6;
     const noweWierzcholki = [];
     const noweKrawedzie = [];
     const litery = "ABCDEFGHIJKLMNO";
 
 
+    const minimalnyDystans = 30;
 
     // 2. Pętla tworząca wierzchołki
    for (let i = 0; i < liczbaWierzcholkow; i++) 
   {
+    let wylosowanoPoprawnie = false;
+    let nowyX = 0;
+    let nowyY = 0;
+    let proby = 0;
+
+
+    while (!wylosowanoPoprawnie && proby < 100) 
+      {
+      nowyX = Math.floor(Math.random() * 90) + 5; 
+      nowyY = Math.floor(Math.random() * 90) + 5;
+      proby++;
+
+      let zaBlisko = false;
+
+      //sprawdzamy dotychczas utworzone wierzchołki
+      for (let j = 0; j < noweWierzcholki.length; j++) {
+        const istniejacy = noweWierzcholki[j];
+        const dx = nowyX - istniejacy.x;
+        const dy = nowyY - istniejacy.y;
+        const odleglosc = Math.sqrt(dx * dx + dy * dy);
+
+        // Jeśli odległość jest mniejsza niż nasz limit, to miejsce odpada
+        if (odleglosc < minimalnyDystans) {
+        zaBlisko = true;
+        break; 
+        }
+      }
+    
+        if (!zaBlisko) {
+        wylosowanoPoprawnie = true;
+        }
+      }
+
     noweWierzcholki.push({
       id: i,
       label: litery[i],
-      // Losujemy pozycję od 10% do 90%, żeby nie dotykały krawędzi
-      x: Math.floor(Math.random() * 80) + 10, 
-      y: Math.floor(Math.random() * 80) + 10,
+      x: nowyX, 
+      y: nowyY,
       status: 'nieodwiedzony'
     });
   }
 
-    for (let i = 0; i < liczbaWierzcholkow - 1; i++)
-    {
+  for (let i = 0; i < liczbaWierzcholkow; i++) {
+  for (let j = i + 1; j < liczbaWierzcholkow; j++) {
+    // ustawiamy szansę na połączenie 
+    if (Math.random() < 0.3) {
       noweKrawedzie.push({
         od: i,
-        do: i + 1,
+        do: j,
         status: 'normalna'
       });
     }
+    
+  }
+}
 
     
   setWierzcholki(noweWierzcholki);
@@ -84,6 +122,33 @@ return (
                {node.label} {/*label to literka*/}
              </div>
             ))}
+            <svg style={{ position: 'absolute', width: '100%', height: '100%', left: 0, top: 0 }}>
+            {/* KROK 2: Przeglądamy wszystkie krawędzie z pamięci komputera */}
+    {krawedzie.map((krawedz, index) => {
+      
+      /* DETEKTYW KROK A: Szukamy kółka, od którego linia ma ODchodzić */
+      const wierzcholekStart = wierzcholki.find(w => w.id === krawedz.od);
+      
+      /* DETEKTYW KROK B: Szukamy kółka, DO którego linia ma DOchodzić */
+      const wierzcholekKoniec = wierzcholki.find(w => w.id === krawedz.do);
+
+      /* Zabezpieczenie: jeśli graf się jeszcze nie wylosował, nie rysuj nic */
+      if (!wierzcholekStart || !wierzcholekKoniec) return null;
+
+      /* KROK 3: Skoro mamy już oba kółka, wyciągamy z nich procenty x i y i rysujemy! */
+      return (
+        <line
+          key={index}
+          x1={`${wierzcholekStart.x}%`}  /* Pobieramy wylosowany X pierwszego kółka */
+          y1={`${wierzcholekStart.y}%`}  /* Pobieramy wylosowany Y pierwszego kółka */
+          x2={`${wierzcholekKoniec.x}%`} /* Pobieramy wylosowany X drugiego kółka */
+          y2={`${wierzcholekKoniec.y}%`} /* Pobieramy wylosowany Y drugiego kółka */
+          stroke="white"                 /* Ustalamy kolor linii */
+          strokeWidth="2"                /* Ustalamy grubość linii */
+        />
+      );
+    })}
+            </svg>
       </div>
 
       <div className='aktualny-stos'>
