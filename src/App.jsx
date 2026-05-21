@@ -27,7 +27,7 @@ function generujGraf(typ) {
     const litery = "ABCDEFGHIJKLMNO";
 
 
-    const minimalnyDystans = 22;
+    const minimalnyDystans = 25;
 
     // 2. Pętla tworząca wierzchołki
    for (let i = 0; i < liczbaWierzcholkow; i++) 
@@ -291,7 +291,7 @@ return (
             
       <svg style={{ position: 'absolute', width: '100%', height: '100%', left: 0, top: 0 }}>
           <defs>
-            <marker id="strzalka" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="strzalka" viewBox="0 0 10 10" refX="35" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="white" />
             </marker>
           </defs>
